@@ -8,17 +8,16 @@ KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel | head -n 1)
 rpm-ostree install kernel-devel git make gcc
 
 # --- STAGE A: BUILD AND INSTALL LENOVO-LEGION-LINUX KERNEL MODULE ---
-# FIX 1: Corrected GitHub repository URL (CamelCase)
 git clone https://github.com/johnfanv2/LenovoLegionLinux.git /tmp/legion
 cd /tmp/legion/kernel_module
 
-# Compile the module strictly for the current container kernel version
-make KDIR=/usr/src/kernels/${KERNEL_VERSION}
+# FIX 3: Bypass the wrapper Makefile which hardcodes the GitHub Actions runner's kernel.
+# We call the kernel's Kbuild system directly, pointing it to the container's kernel headers.
+make -C /usr/src/kernels/${KERNEL_VERSION} M=$(pwd) modules
 
 # Copy the compiled .ko file to the system extra modules directory
 MODULE_DIR="/usr/lib/modules/${KERNEL_VERSION}/extra"
 mkdir -p "${MODULE_DIR}"
-# FIX 2: The compiled module is actually named legion-laptop.ko
 cp legion-laptop.ko "${MODULE_DIR}/"
 
 # Update kernel module dependencies
