@@ -11,8 +11,7 @@ rpm-ostree install kernel-devel git make gcc
 git clone https://github.com/johnfanv2/LenovoLegionLinux.git /tmp/legion
 cd /tmp/legion/kernel_module
 
-# FIX 3: Bypass the wrapper Makefile which hardcodes the GitHub Actions runner's kernel.
-# We call the kernel's Kbuild system directly, pointing it to the container's kernel headers.
+# Bypass the wrapper Makefile and compile directly against the container's kernel
 make -C /usr/src/kernels/${KERNEL_VERSION} M=$(pwd) modules
 
 # Copy the compiled .ko file to the system extra modules directory
@@ -27,12 +26,12 @@ depmod -a "${KERNEL_VERSION}"
 # --- STAGE B: INTEGRATE PLASMAVANTAGE AND ITS ROOT SERVICE ---
 git clone https://gitlab.com/Scias/plasmavantage.git /tmp/plasmavantage
 
-# 1. Copy the widget globally into the system
+# 1. Copy the widget globally into the system (the actual plasmoid is inside the 'package' dir)
 mkdir -p /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage
-cp -r /tmp/plasmavantage/* /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage/
+cp -r /tmp/plasmavantage/package/* /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage/
 
-# 2. Install the system systemd unit
-cp /tmp/plasmavantage/contents/util/plasmavantage-noroot.service /usr/lib/systemd/system/plasmavantage-noroot.service
+# 2. Install the system systemd unit from the correct path
+cp /tmp/plasmavantage/package/contents/util/plasmavantage-noroot.service /usr/lib/systemd/system/plasmavantage-noroot.service
 
 # Create a symlink to enable the service persistently
 mkdir -p /usr/lib/systemd/system/multi-user.target.wants
