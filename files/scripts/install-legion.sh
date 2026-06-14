@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -oeux pipefail
 
-# 1. Get the exact bazzite kernel version inside the build container
-KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel-bazzite)
+# 1. Bazzite uses the standard "kernel" package name internally
+KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel | head -n 1)
 
-# 2. Temporarily install build dependencies
-rpm-ostree install kernel-bazzite-devel git make gcc
+# 2. Temporarily install build dependencies (using standard kernel-devel)
+rpm-ostree install kernel-devel git make gcc
 
 # --- STAGE A: BUILD AND INSTALL LENOVO-LEGION-LINUX KERNEL MODULE ---
 git clone https://github.com/johnfanv2/lenovo-legion-linux.git /tmp/legion
@@ -41,4 +41,4 @@ ln -s ../plasmavantage-noroot.service /usr/lib/systemd/system/multi-user.target.
 # --- STAGE C: ABSOLUTE CLEANUP ---
 # Remove source files and build packages to keep the OSTree layer minimal
 rm -rf /tmp/legion /tmp/plasmavantage
-rpm-ostree uninstall kernel-bazzite-devel git make gcc
+rpm-ostree uninstall kernel-devel git make gcc
