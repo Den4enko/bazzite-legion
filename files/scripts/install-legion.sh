@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -oeux pipefail
 
-# 1. Bazzite uses the standard "kernel" package name internally
+# 1. Get the exact bazzite kernel version inside the build container
 KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel | head -n 1)
 
-# 2. Temporarily install build dependencies (using standard kernel-devel)
+# 2. Temporarily install build dependencies
 rpm-ostree install kernel-devel git make gcc
 
 # --- STAGE A: BUILD AND INSTALL LENOVO-LEGION-LINUX KERNEL MODULE ---
-git clone https://github.com/johnfanv2/lenovo-legion-linux.git /tmp/legion
+# FIX 1: Corrected GitHub repository URL (CamelCase)
+git clone https://github.com/johnfanv2/LenovoLegionLinux.git /tmp/legion
 cd /tmp/legion/kernel_module
 
 # Compile the module strictly for the current container kernel version
@@ -17,7 +18,8 @@ make KDIR=/usr/src/kernels/${KERNEL_VERSION}
 # Copy the compiled .ko file to the system extra modules directory
 MODULE_DIR="/usr/lib/modules/${KERNEL_VERSION}/extra"
 mkdir -p "${MODULE_DIR}"
-cp lenovo-legion-linux.ko "${MODULE_DIR}/"
+# FIX 2: The compiled module is actually named legion-laptop.ko
+cp legion-laptop.ko "${MODULE_DIR}/"
 
 # Update kernel module dependencies
 depmod -a "${KERNEL_VERSION}"
