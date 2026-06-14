@@ -1,0 +1,9 @@
+name: bazzite-legion
+base-image: ghcr.io/ublue-os/bazzite
+image-version: stable
+description: Custom Bazzite for Lenovo Legion Laptops
+
+modules:
+  - type: script
+    scripts:
+      - install-legion.sh

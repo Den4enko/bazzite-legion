@@ -1,0 +1,9 @@
+name: bazzite-legion-nvidia-open
+base-image: ghcr.io/ublue-os/bazzite-nvidia-open
+image-version: stable
+description: Custom Bazzite (Nvidia Open) for Lenovo Legion Laptops
+
+modules:
+  - type: script
+    scripts:
+      - install-legion.sh
