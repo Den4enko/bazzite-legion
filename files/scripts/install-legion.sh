@@ -1,44 +1,61 @@
 #!/usr/bin/env bash
 set -oeux pipefail
 
-# 1. Get the exact bazzite kernel version inside the build container
+# Get exact kernel version
 KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel | head -n 1)
 
-# 2. gcc, make, and kernel-devel are ALREADY in the Bazzite base image!
-# We only need to install git to clone the repositories (keeping it permanently).
+# Install build dependencies
 rpm-ostree install git
 
-# --- STAGE A: BUILD AND INSTALL LENOVO-LEGION-LINUX KERNEL MODULE ---
+# --- STAGE A: KERNEL MODULE ---
 git clone https://github.com/johnfanv2/LenovoLegionLinux.git /tmp/legion
 cd /tmp/legion/kernel_module
 
-# Bypass the wrapper Makefile and compile directly against the container's kernel
+# Build and install module
 make -C /usr/src/kernels/${KERNEL_VERSION} M=$(pwd) modules
-
-# Copy the compiled .ko file to the system extra modules directory
 MODULE_DIR="/usr/lib/modules/${KERNEL_VERSION}/extra"
 mkdir -p "${MODULE_DIR}"
 cp legion-laptop.ko "${MODULE_DIR}/"
-
-# Update kernel module dependencies
 depmod -a "${KERNEL_VERSION}"
 
+# --- STAGE B: LENOVO LEGION GUI & POLKIT ---
+cd /tmp/legion/python/legion_linux
 
-# --- STAGE B: INTEGRATE PLASMAVANTAGE AND ITS ROOT SERVICE ---
+# Install Python GUI
+python3 -m pip install --prefix=/usr --break-system-packages .
+
+# Copy assets globally
+mkdir -p /usr/share/applications /usr/share/icons/hicolor/scalable/apps /usr/share/polkit-1/actions
+find /tmp/legion -name "*.desktop" -exec cp {} /usr/share/applications/ \;
+find /tmp/legion -name "*.svg" -exec cp {} /usr/share/icons/hicolor/scalable/apps/ \;
+find /tmp/legion -name "*.policy" -exec cp {} /usr/share/polkit-1/actions/ \;
+
+# Setup passwordless polkit rule
+mkdir -p /usr/share/polkit-1/rules.d
+cat <<EOF > /usr/share/polkit-1/rules.d/99-lenovo-legion-gui.rules
+polkit.addRule(function(action, subject) {
+    if (action.id == "io.github.johnfanv2.LenovoLegionLinux.pkexec.run" &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});
+EOF
+
+# Setup udev rules for hwmon access
+mkdir -p /usr/lib/udev/rules.d
+cp /tmp/legion/extra/99-lenovo-legion-hwmon.rules /usr/lib/udev/rules.d/
+
+# --- STAGE C: PLASMAVANTAGE ---
 git clone https://gitlab.com/Scias/plasmavantage.git /tmp/plasmavantage
 
-# 1. Copy the widget globally into the system (the actual plasmoid is inside the 'package' dir)
+# Install widget
 mkdir -p /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage
 cp -r /tmp/plasmavantage/package/* /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage/
 
-# 2. Install the system systemd unit from the correct path
-cp /tmp/plasmavantage/package/contents/util/plasmavantage-noroot.service /usr/lib/systemd/system/plasmavantage-noroot.service
-
-# Create a symlink to enable the service persistently
+# Enable passwordless systemd service
+cp /tmp/plasmavantage/package/contents/util/plasmavantage-noroot.service /usr/lib/systemd/system/
 mkdir -p /usr/lib/systemd/system/multi-user.target.wants
 ln -s ../plasmavantage-noroot.service /usr/lib/systemd/system/multi-user.target.wants/plasmavantage-noroot.service
 
-
-# --- STAGE C: ABSOLUTE CLEANUP ---
-# Remove source files ONLY (leaving git installed in the base system)
+# --- STAGE D: CLEANUP ---
 rm -rf /tmp/legion /tmp/plasmavantage
