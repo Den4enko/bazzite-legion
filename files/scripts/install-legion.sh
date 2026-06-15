@@ -27,23 +27,18 @@ python3 -m pip install --prefix=/usr --break-system-packages .
 # Copy assets globally
 mkdir -p /usr/share/applications /usr/share/icons/hicolor/scalable/apps /usr/share/polkit-1/actions
 find /tmp/legion -name "*.desktop" -exec cp {} /usr/share/applications/ \;
-find /tmp/legion -name "*.svg" -exec cp {} /usr/share/icons/hicolor/scalable/apps/ \;
+find /tmp/legion -name "*.svg" -o -name "*.png" -exec cp {} /usr/share/icons/hicolor/scalable/apps/ \;
 find /tmp/legion -name "*.policy" -exec cp {} /usr/share/polkit-1/actions/ \;
 
-# Setup passwordless polkit rule
+# Setup passwordless polkit rule for all legion actions
 mkdir -p /usr/share/polkit-1/rules.d
-cat <<EOF > /usr/share/polkit-1/rules.d/99-lenovo-legion-gui.rules
+cat << 'EOF' > /usr/share/polkit-1/rules.d/99-lenovo-legion-gui.rules
 polkit.addRule(function(action, subject) {
-    if (action.id == "io.github.johnfanv2.LenovoLegionLinux.pkexec.run" &&
-        subject.isInGroup("wheel")) {
+    if (action.id.indexOf("legion") !== -1 && subject.isInGroup("wheel")) {
         return polkit.Result.YES;
     }
 });
 EOF
-
-# Setup udev rules for hwmon access
-mkdir -p /usr/lib/udev/rules.d
-cp /tmp/legion/extra/99-lenovo-legion-hwmon.rules /usr/lib/udev/rules.d/
 
 # --- STAGE C: PLASMAVANTAGE ---
 git clone https://gitlab.com/Scias/plasmavantage.git /tmp/plasmavantage
