@@ -47,5 +47,8 @@ git clone https://gitlab.com/Scias/plasmavantage.git /tmp/plasmavantage
 mkdir -p /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage
 cp -r /tmp/plasmavantage/package/* /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage/
 
+mkdir -p /usr/lib/systemd/system/
+cp /tmp/files/usr/lib/systemd/system/plasmavantage-noroot.service /usr/lib/systemd/system/
+
 # --- STAGE D: CLEANUP ---
 rm -rf /tmp/legion /tmp/plasmavantage
