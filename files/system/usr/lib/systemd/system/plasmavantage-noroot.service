@@ -1,0 +1,15 @@
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/fn_lock
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/usb_charging
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/legion/legion/winkey
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/legion/legion/touchpad
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/legion/legion/rapidcharge
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/legion/legion/overdrive
+ExecStart=-/usr/bin/chmod a+w /sys/bus/platform/drivers/legion/legion/gsync
+
+[Install]
+WantedBy=multi-user.target

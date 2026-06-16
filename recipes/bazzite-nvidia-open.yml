@@ -7,3 +7,14 @@ modules:
   - type: script
     scripts:
       - install-legion.sh
+
+  - type: rpm-ostree
+    install:
+      - qemu-kvm
+      - libvirt
+      - edk2-ovmf
+
+  - type: systemd
+    system:
+      enabled:
+        - plasmavantage-noroot.service

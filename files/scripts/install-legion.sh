@@ -47,10 +47,5 @@ git clone https://gitlab.com/Scias/plasmavantage.git /tmp/plasmavantage
 mkdir -p /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage
 cp -r /tmp/plasmavantage/package/* /usr/share/plasma/plasmoids/com.gitlab.scias.plasmavantage/
 
-# Enable passwordless systemd service
-cp /tmp/plasmavantage/package/contents/util/plasmavantage-noroot.service /usr/lib/systemd/system/
-mkdir -p /usr/lib/systemd/system/multi-user.target.wants
-ln -s ../plasmavantage-noroot.service /usr/lib/systemd/system/multi-user.target.wants/plasmavantage-noroot.service
-
 # --- STAGE D: CLEANUP ---
 rm -rf /tmp/legion /tmp/plasmavantage
