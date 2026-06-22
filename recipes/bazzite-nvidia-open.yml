@@ -13,7 +13,6 @@ modules:
       - qemu-kvm
       - libvirt
       - edk2-ovmf
-      - rclone
 
   - type: systemd
     system:
