@@ -13,10 +13,11 @@ modules:
       copr:
         - jhyub/supergfxctl-plasmoid
     install:
-      - qemu-kvm
-      - libvirt
-      - edk2-ovmf
-      - supergfxctl-plasmoid
+      packages:
+        - qemu-kvm
+        - libvirt
+        - edk2-ovmf
+        - supergfxctl-plasmoid
 
   - type: systemd
     system:
