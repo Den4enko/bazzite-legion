@@ -8,11 +8,15 @@ modules:
     scripts:
       - install-legion.sh
 
-  - type: rpm-ostree
+  - type: dnf
+    repos:
+      copr:
+        - jhyub/supergfxctl-plasmoid
     install:
       - qemu-kvm
       - libvirt
       - edk2-ovmf
+      - supergfxctl-plasmoid
 
   - type: systemd
     system:
