@@ -9,15 +9,11 @@ modules:
       - install-legion.sh
 
   - type: dnf
-    repos:
-      copr:
-        - jhyub/supergfxctl-plasmoid
     install:
       packages:
         - qemu-kvm
         - libvirt
         - edk2-ovmf
-        - supergfxctl-plasmoid
 
   - type: systemd
     system:
