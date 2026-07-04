@@ -50,5 +50,9 @@ cp -r /tmp/plasmavantage/package/* /usr/share/plasma/plasmoids/com.gitlab.scias.
 mkdir -p /usr/lib/systemd/system/
 cp /tmp/files/usr/lib/systemd/system/plasmavantage-noroot.service /usr/lib/systemd/system/
 
-# --- STAGE D: CLEANUP ---
+# --- STAGE D: STEAM BIG PICTURE SESSION ---
+mkdir -p /usr/share/wayland-sessions/
+cp /tmp/files/usr/share/wayland-sessions/steam-big-picture-kwin.desktop /usr/share/wayland-sessions/
+
+# --- STAGE E: CLEANUP ---
 rm -rf /tmp/legion /tmp/plasmavantage

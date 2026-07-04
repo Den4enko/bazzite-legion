@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Steam Big Picture (KWin)
+Comment=Launch Steam Big Picture directly on top of KWin Wayland
+Exec=kwin_wayland --xwayland --exec "/usr/bin/bazzite-steam-bpm"
+Type=Application
+DesktopNames=KDE
